@@ -89,6 +89,38 @@ describe('readNight', () => {
     });
   });
 
+  it.each([
+    ['2026-10-28T23:00:00.0009+01:00', '2026-10-28T23:00:00.0001+01:00'],
+    ['2026-10-28T23:00:00.0009+01:00', '2026-10-28T22:00:00.0001Z'],
+  ])('preserves sub-millisecond chronological ordering for %s and %s', (latestAt, earliestAt) => {
+    writeLines([
+      { ...event, at: latestAt, owner: 'latest', error: 'latest error' },
+      { ...event, at: earliestAt, status: 'retry', owner: 'older', error: 'older error' },
+    ]);
+    expect(readNight(runsDir, night)?.rows).toEqual([{
+      job: 'job', owner: 'latest', runs: 2, retries: 1, lastStatus: 'ok', lastError: 'latest error',
+      firstAt: earliestAt, lastAt: latestAt, hasFailure: false,
+    }]);
+  });
+
+  it.each([
+    ['.0001', '.0001000'],
+    ['.123456789', '.123456789000'],
+    ['.1230000', '.123'],
+    ['.0000000', ''],
+  ])('uses input order for equivalent fractions %s and %s across offsets', (firstFraction, lastFraction) => {
+    const firstAt = `2026-10-28T23:00:00${firstFraction}+01:00`;
+    const lastAt = `2026-10-28T22:00:00${lastFraction}Z`;
+    writeLines([
+      { ...event, at: firstAt, status: 'fail', owner: 'first', error: 'first error' },
+      { ...event, at: lastAt, owner: 'last', error: 'last error' },
+    ]);
+    expect(readNight(runsDir, night)?.rows).toEqual([{
+      job: 'job', owner: 'last', runs: 2, retries: 0, lastStatus: 'ok', lastError: 'last error',
+      firstAt, lastAt, hasFailure: true,
+    }]);
+  });
+
   it('handles missing owners and prototype-like job names with deterministic lexical sorting', () => {
     writeLines([
       { at: event.at, job: '__proto__', status: 'ok' },
