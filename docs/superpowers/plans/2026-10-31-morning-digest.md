@@ -32,14 +32,14 @@
 
 `src/digest/types.ts` exports `DigestStatus = 'ok' | 'retry' | 'fail'`, `DigestRow` with `job: string`, `owner: string | null`, `runs: number`, `retries: number`, `lastStatus: DigestStatus`, `lastError: string | null`, `firstAt: string`, `lastAt: string`, `hasFailure: boolean`. `DigestNight` contains `night: string`, `rows: DigestRow[]`, `badLines: number`, `counts: Record<DigestStatus, number>`. `ReadNight = (runsDir: string, night: string) => DigestNight | null` specifies the synchronous reader contract; `src/digest/reader.ts` exports `readNight: ReadNight`. Missing files or invalid date-shaped names return null; other I/O failures propagate. Empty files return a non-null result with no rows. Counts summarize valid log events. Rows sort by job using deterministic lexical comparison. `runs` counts all valid events per job; `retries` counts retry events; latest chronological event supplies owner and status, latest error-bearing event supplies lastError, first/last retain original timestamp strings. Equal instants break ties by input order. Blank lines are ignored.
 
-### Task A: Types contract — § 1
+### Task 1: A. Types contract — § 1
 
 **Files:** create `src/digest/types.ts`.
 **Produces:** the shared interfaces above. No runtime behavior.
 - [ ] Define documented exports and `ReadNight` signature; run `pnpm typecheck`.
 - [ ] Commit types alone before implementation workers start; close only after verified and pushed.
 
-### Task B: Reader — § 1
+### Task 2: B. Reader — § 1
 
 **Files:** create `src/digest/reader.ts`, `test/digest-reader.test.ts`.
 **Consumes:** A; **Produces:** `readNight: ReadNight`.
@@ -48,7 +48,7 @@
 - [ ] Observe failing tests, implement minimal reader with Map and validated input, then run reader tests, full suite and typecheck.
 - [ ] Commit with issue reference and report evidence.
 
-### Task C: HTML — § 2a
+### Task 3: C. HTML — § 2a
 
 **Files:** create `src/views/digest.tsx`, modify `src/app.tsx`; tests in `test/digest-page.test.tsx`.
 **Consumes:** A and B's reader contract; **Produces:** GET `/digest/:night`.
@@ -56,7 +56,7 @@
 - [ ] Render all row fields in Layout; use `.warn` for >=3 retries or hasFailure. Display badLines and `nothing ran` where applicable.
 - [ ] Run tests and typecheck; commit scoped changes.
 
-### Task D: JSON — § 2b
+### Task 4: D. JSON — § 2b
 
 **Files:** modify `src/app.tsx`; create `test/digest-json.test.ts`.
 **Consumes:** canonical readNight; **Produces:** GET `/api/digest/:night` returning DigestNight, 404 when null.
@@ -64,7 +64,7 @@
 - [ ] Implement route without a separate aggregation or sort; compare rows with HTML during integration.
 - [ ] Run tests and typecheck; commit scoped changes. Integrator resolves shared app.tsx edits.
 
-### Task E: Board — § 2c
+### Task 5: E. Board — § 2c
 
 **Files:** modify `src/status.ts`, `src/views/status.tsx`; create `test/digest-board.test.tsx`.
 **Consumes:** readNight and nightsOnDisk; **Produces:** board links and valid-event ok/retry/fail counts.
@@ -72,21 +72,21 @@
 - [ ] Extend Status with night summaries while retaining nights:string[] for compatibility; render each night as `/digest/<night>` link with named counts.
 - [ ] Run suite/typecheck; commit scoped changes.
 
-### Task F: Route integration tests — § 2d
+### Task 6: F. Route integration tests — § 2d
 
 **Files:** create `test/digest-routes.test.tsx` (independent worker).
 **Consumes:** integrated B–D routes.
 - [ ] Use temporary runsDir; assert HTML/JSON 200 and same sorted jobs, 404, empty night, bad line, nullable owner, escaping, invalid path. Fixtures in runs/ remain untouched.
 - [ ] Run `pnpm test` and `pnpm typecheck`, commit tests and report result.
 
-### Task G: Review preview — § 3
+### Task 7: G. Review preview — § 3
 
 **Files:** exported HTML outside repository, no committed preview.
 - [ ] Run rig locally with private .env; save GET `/digest/2026-10-28` using curl, checking sample data, banner, self-contained HTML and no scripts.
 - [ ] Select a supported replaceable HTTPS host; obtain explicit human approval stating what/why/where/visibility/undo before publication.
 - [ ] Publish and verify public HTML, then submit repo + preview to claim_challenge. Keep exact private receipts; do not close until review link is submitted.
 
-### Task H: Cleanup — § 4
+### Task 8: H. Cleanup — § 4
 
 **Files:** move root plan to `docs/plans/done/morning-digest.md`, add actual issue URLs.
 - [ ] After reviewer requests cleanup, obtain explicit human approval before overwriting preview.
