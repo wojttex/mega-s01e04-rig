@@ -1,0 +1,82 @@
+name: Review preview
+
+# Dispatch only after approval of the public host, content, visibility, and undo.
+# Dispatch again with include_marker=false to replace the same public page cleanly.
+on:
+  workflow_dispatch:
+    inputs:
+      include_marker:
+        description: Include the private lane marker in this public review copy
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: write
+
+concurrency:
+  group: review-preview-pages
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Export review copy outside the checkout
+        env:
+          INCLUDE_MARKER: ${{ inputs.include_marker }}
+          REQUESTED_MARKER: ${{ inputs.include_marker && secrets.LANE_MARKER || '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          export LANE_MARKER=''
+          if [[ "$INCLUDE_MARKER" == 'true' ]]; then
+            if [[ -z "${REQUESTED_MARKER//[[:space:]]/}" ]]; then
+              echo 'Requested marker is missing; export aborted.' >&2
+              exit 1
+            fi
+            export LANE_MARKER="$REQUESTED_MARKER"
+          fi
+          mkdir -p "$RUNNER_TEMP/review-preview"
+          bash scripts/export-digest.sh "$RUNNER_TEMP/review-preview/index.html"
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload temporary Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ runner.temp }}/review-preview
+          retention-days: 1
+      - name: Deploy review copy
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Remove this run's Pages artifact and local copy
+        if: ${{ always() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf -- "$RUNNER_TEMP/review-preview"
+          gh api --paginate "repos/$GH_REPO/actions/runs/$GITHUB_RUN_ID/artifacts" \
+            --jq '.artifacts[] | select(.name == "github-pages") | .id' |
+          while IFS= read -r artifact_id; do
+            gh api --method DELETE "repos/$GH_REPO/actions/artifacts/$artifact_id"
+          done
