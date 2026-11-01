@@ -77,3 +77,14 @@ page again with `LANE_MARKER` unset (the banner reads "no marker set") and uploa
 link. Move this plan to `docs/plans/done/` with its issue list.
 
 Done when: the preview link no longer shows the lane marker.
+
+## Issues
+
+- [#1 Define digest types and reader contract](https://github.com/wojttex/mega-s01e04-rig/issues/1)
+- [#2 Read and aggregate nightly JSONL logs](https://github.com/wojttex/mega-s01e04-rig/issues/2)
+- [#3 Render the nightly digest page](https://github.com/wojttex/mega-s01e04-rig/issues/3)
+- [#4 Expose matching digest JSON](https://github.com/wojttex/mega-s01e04-rig/issues/4)
+- [#5 Link board nights to digest with status counts](https://github.com/wojttex/mega-s01e04-rig/issues/5)
+- [#6 Test digest routes and HTML/JSON parity](https://github.com/wojttex/mega-s01e04-rig/issues/6)
+- [#7 Publish a replaceable HTML review preview](https://github.com/wojttex/mega-s01e04-rig/issues/7)
+- [#8 Remove preview marker and archive the completed plan](https://github.com/wojttex/mega-s01e04-rig/issues/8)

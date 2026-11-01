@@ -8,7 +8,7 @@
 
 **Tech Stack:** Node 22+, TypeScript strict, Hono JSX, Vitest, pnpm.
 
-**Spec:** `plan.md`, `AGENTS.md`, `docs/vision.md`, `docs/styleguide.md`, `docs/adr/0001-server-rendered-jsx-no-client-js.md` through ADR 0004. Human approved the split and common issue fields in the Challenge chat on 2026-10-31.
+**Spec:** `docs/plans/done/morning-digest.md`, `AGENTS.md`, `docs/vision.md`, `docs/styleguide.md`, `docs/adr/0001-server-rendered-jsx-no-client-js.md` through ADR 0004. Human approved the split and common issue fields in the Challenge chat on 2026-10-31.
 
 ## Global Constraints
 
