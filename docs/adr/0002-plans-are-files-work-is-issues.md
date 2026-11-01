@@ -11,8 +11,10 @@ top to bottom by a single agent, including the parts that should have waited.
 
 - A plan is a file, `plan.md` at the root, reviewed like code. Finished plans move to
   `docs/plans/done/` with their issue list.
-- Work happens in GitHub issues split from the plan (skill `plan-to-issues`), one per unit of
-  work, each with its source section, scope, a checkable done condition, and what it's blocked by.
+- Work happens in issues split from the plan, one per unit of work. The shared
+  [plan-to-issues skill](../../.agents/skills/plan-to-issues/SKILL.md) owns the human-approved
+  issue contract and the completion gates for outside review. Read it when creating issues
+  or when review confirmation blocks preview clean-up.
 - Issues are worked by workers, one issue each. The closing comment records which model did it
   (format in AGENTS.md), so we can see later which models are worth their cost per kind of task.
 
